@@ -8,8 +8,8 @@ import socket
 import time
 from psuedoSensor import PseudoSensor
 ps = PseudoSensor()
-alarmOn = False
 storeStruct = []
+alarmOn = False
 
 '''
 This is a simple Websocket Echo server that uses the Tornado websocket handler.
@@ -23,10 +23,16 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print ('new connection')
       
     def on_message(self, message):
+        global alarmOn
         print ('message received:  %s' % message)
         # Test for which message is recieved
         if (message == "alarmOn"):
-            onClicked()
+            if alarmOn == False:
+                alarmOn = True
+                self.write_message("Alarms On")
+            else:
+                alarmOn = False
+                self.write_message("Alarms Off")
         elif (message == "Read1"):
             ts = time.gmtime()
             h,t = ps.generate_values()
@@ -91,43 +97,21 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             self.write_message(displayStr)
 
         elif (message == "Close"):
-            on_close()
+            print ('connection closed')
+
+        elif(message[:6] == "Humd ="):
+            print ("Humidity Alarm Set to")
+            self.write_message("Humidity alarm set to ")
+            
+        elif(message[:6] == "Temp ="):
+            print ("Temp alarm set to ")
+            self.write_message("Temperature alarm set to ")
+            
         else:
             print('unknown command recieved')
  
-    def on_close(self):
-        print ('connection closed')
- 
     def check_origin(self, origin):
         return True
-
-# When the Alarms On/Off radio button is clicked in the client this codes checks to see
-# the alarm on/off, toggles the flag and sends the flag to the client
-
-    def onClicked():
-        global alarmOn
-        if alarmOn:
-            alarmOn = False
-            WSHandler.write_message('Alarm Off')
-        else:           
-            alarmOn = True
-            WSHandler.write_message('Alarm On')
-
-
-
-    def read10():
-        ts = time.gmtime()
-        h,t = ps.generate_values()
-        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
-                     + " deg  Single Read"
-        WSHandler.write_message(displayStr)
-
-    def avgMinMax():
-        ts = time.gmtime()
-        h,t = ps.generate_values()
-        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
-                     + " deg  Single Read"
-        WSHandler.write_message(displayStr)
         
  
 application = tornado.web.Application([

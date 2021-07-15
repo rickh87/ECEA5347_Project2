@@ -56,12 +56,6 @@
             log("Connection Opened");
           };
         });
- 
-        // Send websocket message function
-        $("#send").click(function(evt) {
-            log("Sending Message: "+$("#message").val());
-            ws.send($("#message").val());
-        });
 
         Read1.addEventListener('click', function(){	
           ws.send("Read1");
@@ -87,6 +81,14 @@
             };
       });
 
+        Alarm.addEventListener('click', function(){	
+          ws.send("alarmOn");
+          // Handle incoming websocket message callback
+          ws.onmessage = function(evt) {
+            log(evt.data)
+            };
+      });
+
         Close.addEventListener('click', function(){	
           ws.send("Close");
           // Handle incoming websocket message callback
@@ -94,6 +96,16 @@
             log(evt.data)
             };
       });
+
+        // Send Humidity set alarm websocket message function
+        $("#halarmset").click(function(evt) {
+            ws.send("Humd =" + $("#humidity_alarm").val());
+        });
+
+        // Send Temperature set alarm websocket message function
+        $("#talarmset").click(function(evt) {
+            ws.send("Temp =" + $("#temp_alarm").val());
+        });
  
       });
     </script>
@@ -110,19 +122,26 @@
       <input type="text" id="uri" value="/ws" style="background:#ff0000;"/><br />
       <input type="submit" id="open" value="open" />
     </div>
-    <div id="message_details">
-        </br></br>
-        <label for="message">message:</label>
-        <input type="text" id="message" value="Hello World!"/><br />
-        <input type="submit" id="send" value="send" />
-    </div>
 
     <div>	
         <input type="button" id = "Read1" value = "Read 1" >
         <input type="button" id = "Read10" value = "Read 10" >
         <input type="button" id = "AvgMinMax" value ="Avg/Min/Max" >
         <input type="button" id = "Close" value = "Close" >
+	<input type="button" id = "Alarm" value = "Alarm" >
     </div> 
+
+    <div>
+        <label for="humidity_alarm">Humidity Alarm Set %</label>
+        <input id="humidity_alarm" type="text" value="80.0">
+        <input type="submit" id="halarmset" value="Set">
+    </div>
+
+    <div>
+        <label for="temp_alarm">Temperature Alarm Set deg F</label>
+        <input id="temp_alarm" type="text" value="80.0">
+	<input type="submit" id="talarmset" value="Set">
+    </div>
     <div id="terminal">
         
     </div>
