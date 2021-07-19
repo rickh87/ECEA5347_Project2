@@ -10,6 +10,8 @@ from psuedoSensor import PseudoSensor
 ps = PseudoSensor()
 storeStruct = []
 alarmOn = False
+humid = 80.0
+temp = 80.0
 
 '''
 This is a simple Websocket Echo server that uses the Tornado websocket handler.
@@ -24,6 +26,8 @@ class WSHandler(tornado.websocket.WebSocketHandler):
       
     def on_message(self, message):
         global alarmOn
+        global humid
+        global temp
         print ('message received:  %s' % message)
         # Test for which message is recieved
         if (message == "alarmOn"):
@@ -36,15 +40,44 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         elif (message == "Read1"):
             ts = time.gmtime()
             h,t = ps.generate_values()
-            displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
-              + " deg  Single Read"
+            print(h, humid, t, temp)
+            if alarmOn:
+                if ((h >= humid) and (t < temp)):
+                    displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                      + " deg  Single Read   Humidity Alarm"
+                elif ((h < humid) and (t >= temp)):
+                    displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                      + " deg  Single Read Temperature Alarm"
+                elif ((h >= humid) and (t >= temp)):
+                    displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                      + " deg  Single Read Humid/Temp Alarm"
+                else:
+                    displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                      + " deg  Single Read"
+            else:
+                displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                  + " deg  Single Read"
             self.write_message(displayStr)
         elif (message == "Read10"):
             for i in range(1,11):
                 ts = time.gmtime()
                 h,t = ps.generate_values()
-                displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
-                    + " deg " + str(i)
+                if alarmOn:
+                    if ((h >= humid) and (t < temp)):
+                        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                          + " deg " + str(i) + " Humidity Alarm"
+                    elif ((h < humid) and (t >= temp)):
+                        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                          + " deg " + str(i) + " Temperature Alarm"
+                    elif ((h >= humid) and (t >= temp)):
+                        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                          + " deg " + str(i) + " Humid/Temp Alarm"
+                    else:
+                        displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                          + " deg " + str(i)
+                else:
+                    displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
+                      + " deg " + str(i)
                 self.write_message(displayStr)
                 # sleep for 1 second      
                 time.sleep(1)
@@ -98,15 +131,34 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
         elif (message == "Close"):
             print ('connection closed')
+            self.close()
 
         elif(message[:6] == "Humd ="):
-            print ("Humidity Alarm Set to")
-            self.write_message("Humidity alarm set to ")
-            
+            try:
+               t_humid = round(float(message[6:]),1)
+               if ((t_humid >= 0.0) and (t_humid <= 100.0)):
+                  humid = t_humid
+                  print (f"Humidity Alarm Set to {humid}")
+                  self.write_message(f"Humidity alarm set to {humid}")
+               else:
+                  print ("Humidity entered is out of range")
+                  self.write_message("Humidity entered is out of range")
+            except:                 
+               print ("Humidity entry is not a valid number")
+               self.write_message("Humidity entry is not a valid number")
         elif(message[:6] == "Temp ="):
-            print ("Temp alarm set to ")
-            self.write_message("Temperature alarm set to ")
-            
+            try:
+               t_temp = round(float(message[6:]),1)
+               if ((t_temp >= -20.0) and (t_temp <= 100.0)):
+                  temp = t_temp
+                  print (f"Temperature Alarm Set to {temp}")
+                  self.write_message(f"Temperature alarm set to {temp}")
+               else:
+                  print ("Temperature entered is out of range")
+                  self.write_message("Temperature entered is out of range")
+            except:                 
+               print ("Temperature entry is not a valid number")
+               self.write_message("Temperature entry is not a valid number")
         else:
             print('unknown command recieved')
  
