@@ -14,12 +14,10 @@ humid = 80.0
 temp = 80.0
 
 '''
-This is a simple Websocket Echo server that uses the Tornado websocket handler.
-Please run `pip install tornado` with python of version 2.7.9 or greater to install tornado.
-This program will echo back the reverse of whatever it recieves.
-Messages are output to the terminal for debuggin purposes. 
-''' 
- 
+The web socket handler is derived from the HelloWorld example from the Tornado
+Websockets website
+'''
+# Create a web socket handler
 class WSHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print ('new connection')
@@ -38,9 +36,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 alarmOn = False
                 self.write_message("Alarms Off")
         elif (message == "Read1"):
+            # read 1 time stamp, humidity and temperature
             ts = time.gmtime()
             h,t = ps.generate_values()
             print(h, humid, t, temp)
+            # if the alarm is set, test to see if humidity and temperature
+            # are exceeded. If so, add text to indicate alarm
             if alarmOn:
                 if ((h >= humid) and (t < temp)):
                     displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
@@ -59,9 +60,12 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                   + " deg  Single Read"
             self.write_message(displayStr)
         elif (message == "Read10"):
+            # read 10 time stamps, humidities and temperatures            
             for i in range(1,11):
                 ts = time.gmtime()
                 h,t = ps.generate_values()
+                # if the alarm is set, test to see if humidity and temperature
+               # are exceeded. If so, add text to indicate alarm
                 if alarmOn:
                     if ((h >= humid) and (t < temp)):
                         displayStr = time.strftime("%Y-%m-%d %H:%M:%S   ",ts) + str(round(h,1)) + "%  " + str(round(t,1)) \
@@ -82,6 +86,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 # sleep for 1 second      
                 time.sleep(1)
         elif (message == "AvgMinMax"):
+            #Calculate the average, the minimum and maximum of 10 readings
             hSum = 0
             hMin = 101.0
             hMax = -.1
@@ -130,12 +135,17 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             self.write_message(displayStr)
 
         elif (message == "Close"):
+            #Close the connection
             print ('connection closed')
             self.close()
 
         elif(message[:6] == "Humd ="):
+            #Set the humidty alarm.
+            #First test to see if a valid number was entered
             try:
+               #round the number to one decimal place 
                t_humid = round(float(message[6:]),1)
+               #test to see if the humidity entered is within valid range
                if ((t_humid >= 0.0) and (t_humid <= 100.0)):
                   humid = t_humid
                   print (f"Humidity Alarm Set to {humid}")
@@ -147,8 +157,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                print ("Humidity entry is not a valid number")
                self.write_message("Humidity entry is not a valid number")
         elif(message[:6] == "Temp ="):
+            #test to see if the temperature entered is a valid number
             try:
+               #rond off to one decimal place 
                t_temp = round(float(message[6:]),1)
+               #test to see if temperature entered is within range
                if ((t_temp >= -20.0) and (t_temp <= 100.0)):
                   temp = t_temp
                   print (f"Temperature Alarm Set to {temp}")

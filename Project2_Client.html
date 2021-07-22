@@ -11,18 +11,22 @@
     </style>
     <script src="http://code.jquery.com/jquery.min.js"></script>
     <script>
- 
+
+    // From the HelloWorld tornado client/erver websocket example, 
+    // create a websocket instance
+    
+
       // log function
       log = function(data){
-        $("div#terminal").prepend("</br>" +data);
+        $("div#terminal").prepend("</br>" + data)
         console.log(data);
       };
  
       $(document).ready(function () {
         $("div#message_details").hide()
- 
-        var ws;
- 
+
+	var ws; 
+
         $("#open").click(function(evt) {
           evt.preventDefault();
  
@@ -31,6 +35,7 @@
           var uri = $("#uri").val();
  
           // create websocket instance
+	  log("ws://" + host + ":" + port + uri);
           ws = new WebSocket("ws://" + host + ":" + port + uri);
            
           // Handle incoming websocket message callback
@@ -41,22 +46,29 @@
           // Close Websocket callback
           ws.onclose = function(evt) {
             log("Connection Closed");
-            $("#host").css("background", "#ff0000"); 
-            $("#port").css("background", "#ff0000"); 
-            $("#uri").css("background",  "#ff0000");
+            $("#host").css; 
+            $("#port").css; 
+            $("#uri").css;
             $("div#message_details").empty();
             };
  
           // Open Websocket callback
-          ws.onopen = function(evt) { 
-            $("#host").css("background", "#00ff00"); 
-            $("#port").css("background", "#00ff00"); 
-            $("#uri").css("background", "#00ff00");
+          ws.onopen = function(evt) { 	
+            $("#host").css; 
+            $("#port").css; 
+            $("#uri").css;
             $("div#message_details").show();
             log("Connection Opened");
           };
-        });
 
+        // Listen for websocket errors
+          ws.addEventListener('error', function () {
+             log("No server");
+          });
+
+      });
+
+        //Send a read 1 command to the server
         Read1.addEventListener('click', function(){	
           ws.send("Read1");
           // Handle incoming websocket message callback
@@ -65,6 +77,7 @@
             };
       });
 
+        //Send a read 10 command to the server
         Read10.addEventListener('click', function(){	
           ws.send("Read10");
           // Handle incoming websocket message callback
@@ -73,6 +86,7 @@
             };
       });
 
+        // Send a calculate Average/Minimim and Maximum command to the server
         AvgMinMax.addEventListener('click', function(){	
           ws.send("AvgMinMax");
           // Handle incoming websocket message callback
@@ -81,6 +95,7 @@
             };
       });
 
+        // Tell the server to Toggle the Alarm On/Off flag
         Alarm.addEventListener('click', function(){	
           ws.send("alarmOn");
           // Handle incoming websocket message callback
@@ -89,6 +104,7 @@
             };
       });
 
+        // Send a close connection command to the server
         Close.addEventListener('click', function(){	
           ws.send("Close");
           // Handle incoming websocket message callback
@@ -112,17 +128,22 @@
   </head>
  
   <body>
+    <!--
+       From the HelloWorld tornado client/erver websocket example, 
+       create input text fields for the host IP, socket and uri
+    -->
     <h1>Humidity/Temperature HTML Client</h1>
     <div id="connection_details">
       <label for="host">host:</label>
-      <input type="text" id="host" value="localhost" style="background:#ff0000;"/><br />
+      <input type="text" id="host" value="localhost" /><br />
       <label for="port">port:</label>
-      <input type="text" id="port" value="8888" style="background:#ff0000;"/><br />
+      <input type="text" id="port" value="8888" /><br />
       <label for="uri">uri:</label>
-      <input type="text" id="uri" value="/ws" style="background:#ff0000;"/><br />
+      <input type="text" id="uri" value="/ws" /><br />
       <input type="submit" id="open" value="open" />
     </div>
 
+    <!-- Create buttons for the commands -->
     <div>	
         <input type="button" id = "Read1" value = "Read 1" >
         <input type="button" id = "Read10" value = "Read 10" >
@@ -131,19 +152,23 @@
 	<input type="button" id = "Alarm" value = "Alarm" >
     </div> 
 
+    <!-- Create an input field for the humidity alarm --> 
     <div>
         <label for="humidity_alarm">Humidity Alarm Set %</label>
         <input id="humidity_alarm" type="text" value="80.0">
         <input type="submit" id="halarmset" value="Set">
     </div>
 
+    <!-- Create an input field for the temperature alarm -->
     <div>
         <label for="temp_alarm">Temperature Alarm Set deg F</label>
         <input id="temp_alarm" type="text" value="80.0">
 	<input type="submit" id="talarmset" value="Set">
     </div>
+
     <div id="terminal">
-        
+      
     </div>
+
   </body>
 </html>
