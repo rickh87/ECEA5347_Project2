@@ -15,7 +15,7 @@ temp = 80.0
 
 '''
 The web socket handler is derived from the HelloWorld example from the Tornado
-Websockets website
+Websockets website at https://os.mbed.com/cookbook/Websockets-Server 
 '''
 # Create a web socket handler
 class WSHandler(tornado.websocket.WebSocketHandler):

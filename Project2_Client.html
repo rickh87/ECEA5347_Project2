@@ -9,13 +9,16 @@
         min-width: 500px;
       }
     </style>
+
+    // The following code that opens a websocket is from the 
+    // HelloWorld tornado client/server websocket example
+    // at https://os.mbed.com/cookbook/Websockets-Server 
+
     <script src="http://code.jquery.com/jquery.min.js"></script>
     <script>
-
-    // From the HelloWorld tornado client/erver websocket example, 
+ 
     // create a websocket instance
     
-
       // log function
       log = function(data){
         $("div#terminal").prepend("</br>" + data)
@@ -60,6 +63,8 @@
             $("div#message_details").show();
             log("Connection Opened");
           };
+
+        // end of code from websocket example
 
         // Listen for websocket errors
           ws.addEventListener('error', function () {
@@ -128,10 +133,11 @@
   </head>
  
   <body>
-    <!--
-       From the HelloWorld tornado client/erver websocket example, 
-       create input text fields for the host IP, socket and uri
-    -->
+
+    // The following code that opens a websocket is from the 
+    // HelloWorld tornado client/server websocket example
+    // at https://os.mbed.com/cookbook/Websockets-Server 
+
     <h1>Humidity/Temperature HTML Client</h1>
     <div id="connection_details">
       <label for="host">host:</label>
@@ -142,6 +148,7 @@
       <input type="text" id="uri" value="/ws" /><br />
       <input type="submit" id="open" value="open" />
     </div>
+    // end of code from websocket example
 
     <!-- Create buttons for the commands -->
     <div>	
